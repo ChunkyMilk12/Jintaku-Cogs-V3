@@ -2,7 +2,7 @@
 
 # Installation
 
-`[p]repo add Jintaku-Cogs https://github.com/Jintaku/Jintaku-Cogs-V3/`
+`[p]repo add Jintaku-Cogs https://github.com/ChunkyMilk12/Jintaku-Cogs-V3`
 
 `[p]cog install Jintaku-Cogs <cog-name>`
 
