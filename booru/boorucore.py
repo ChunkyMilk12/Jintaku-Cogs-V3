@@ -861,23 +861,22 @@ class BooruCore:
 
     async def fetch_from_booru(self, urlstr, provider):  # Handles provider data and fetcher responses
         content = ""
-
+        assigned_content = []
         async with self.session.get(urlstr, headers={'User-Agent': "Booru (https://github.com/Jintaku/Jintaku-Cogs-V3)"}) as resp:
             try:
-                content = await resp.json(content_type=None)
-                if provider == "e621":
-                    content = content["posts"]
-                    log.debug(content)
+                if resp.status == 200:
+                    content = await resp.json(content_type=None)
+                    if provider == "e621":
+                        content = content.get("posts", [])
+                else:
+                    return []
             except (ValueError, aiohttp.ContentTypeError) as ex:
-                log.debug("Pruned by exception, error below:")
-                log.debug(ex)
-                content = []
-        if not content or content == [] or content is None or (type(content) is dict and "success" in content.keys() and content["success"] == False):
-            content = []
-            return content
-        else:
-            assigned_content = []
+                    return []
+            if not isinstance(content, list):
+                return []
             for item in content:
+                if not isinstance(item, dict):
+                    continue
                 if item.get("id") is None:
                     continue
                 if provider == "Konachan":
@@ -887,7 +886,7 @@ class BooruCore:
                     item["author"] = item["owner"]
                 elif provider == "Rule34":
                     item["post_link"] = "https://rule34.xxx/index.php?page=post&s=view&id=" + str(item["id"])
-                    item["file_url"] = "https://us.rule34.xxx//images/" + item["directory"] + "/" + item["image"]
+                    item["file_url"] = "https://us.rule34.xxx//images/" + str(item["directory"]) + "/" + str(item["image"])
                     item["author"] = item["owner"]
                 elif provider == "Yandere":
                     item["post_link"] = "https://yande.re/post/show/" + str(item["id"])
@@ -897,7 +896,7 @@ class BooruCore:
                     item["author"] = "Not Available"
                 elif provider == "Safebooru":
                     item["post_link"] = "https://safebooru.com/index.php?page=post&s=view&id=" + str(item["id"])
-                    item["file_url"] = "https://safebooru.org//images/" + item["directory"] + "/" + item["image"]
+                    item["file_url"] = "https://safebooru.org//images/" + str(item["directory"]) + "/" + str(item["image"])
                     item["author"] = item["owner"]
                 elif provider == "e621":
                     item["post_link"] = "https://e621.net/post/show/" + str(item["id"])
